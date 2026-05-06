@@ -1,5 +1,6 @@
 package com.example.labo02
 
+import android.hardware.Sensor
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -31,10 +32,12 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,6 +47,10 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.labo02.ui.theme.Labo02Theme
+import com.example.labo02.ui.theme.screens.AgregarListas
+import com.example.labo02.ui.theme.screens.WelcomeScreen
+import com.example.labo02.ui.theme.screens.Sensor
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,7 +59,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             Labo02Theme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    AgregarListas(
+                    sensores(
 
                         modifier = Modifier.padding(innerPadding)
                     )
@@ -63,95 +70,21 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
+fun sensores(modifier: Modifier) {
+    var pantalla by remember { mutableStateOf("HOME") }
+
+    when (pantalla) {
+        "HOME" -> WelcomeScreen(onStart = { pantalla = "LISTA" }, onStart2 = { pantalla = "SENSOR" })
+        "LISTA" -> AgregarListas(onStart = { pantalla = "HOME" })
+        "SENSOR" -> Sensor(onStart = { pantalla = "HOME" })
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
     Labo02Theme {
-        Greeting("Android")
+
     }
 }
 
-@Composable
-fun AgregarListas(modifier: Modifier = Modifier) {
-    val entries = remember { mutableStateListOf<String>() }
-    val usuario = remember { mutableStateOf("") }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        TextField(
-            value = usuario.value,
-            onValueChange = { usuario.value = it },
-            label = { Text("Nombre") },
-            modifier = Modifier.fillMaxWidth().padding(top = 20.dp)
-        )
-
-        Button(
-            onClick = {
-                if (usuario.value.isNotBlank()) {
-                    entries.add(usuario.value)
-                    usuario.value = ""
-                }
-            },
-            modifier = Modifier.padding(vertical = 16.dp)
-        ) {
-            Text(text = "Guardar")
-        }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = "Listado de nombres y posición en la lista",
-                modifier = Modifier.weight(1f).padding(end = 8.dp)
-            )
-            Button(
-                onClick = {
-                    if (entries.isNotEmpty()) {
-                        entries.removeAt(entries.size - 1)
-                    }
-                          },
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(text = "Limpiar")
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .border(
-                    border = BorderStroke(width = 3.dp, Color.Blue),
-                    shape = RoundedCornerShape(12.dp)
-                )
-                .padding(8.dp)
-        ) {
-            itemsIndexed(entries) { index, item ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(text = item)
-                    Text(text = (index + 1).toString())
-                }
-            }
-        }
-    }
-}
